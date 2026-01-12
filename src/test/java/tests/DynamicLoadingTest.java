@@ -23,7 +23,6 @@ public class DynamicLoadingTest {
 
         WebDriverManager.chromedriver().setup();
         driver = new ChromeDriver(options);
-        driver.manage().window().maximize();
         driver.get("https://the-internet.herokuapp.com/dynamic_loading/1");
     }
 
@@ -39,7 +38,6 @@ public class DynamicLoadingTest {
 
         Assert.assertEquals(text.getText(), "Hello World!");
 
-        // Screenshot
         TakesScreenshot ts = (TakesScreenshot) driver;
         File src = ts.getScreenshotAs(OutputType.FILE);
         Files.copy(src.toPath(), new File("screenshots/hello_world.png").toPath());
