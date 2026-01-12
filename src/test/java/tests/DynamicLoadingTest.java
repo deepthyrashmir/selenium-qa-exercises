@@ -1,50 +1,48 @@
 package tests;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.time.Duration;
 
 public class DynamicLoadingTest {
 
     WebDriver driver;
 
-    @BeforeMethod
-    public void setup() {
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new");
-
-        WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver(options);
-        driver.get("https://the-internet.herokuapp.com/dynamic_loading/1");
-    }
-
     @Test
-    public void verifyHelloWorldText() throws Exception {
+    public void verifyHelloWorldText() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
 
-        driver.findElement(By.xpath("//button[text()='Start']")).click();
+        driver.get("https://the-internet.herokuapp.com/dynamic_loading/1");
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        WebElement text = wait.until(
+
+        // Wait for Start button and click
+        WebElement startButton = wait.until(
+                ExpectedConditions.elementToBeClickable(By.xpath("//div[@id='start']/button"))
+        );
+        startButton.click();
+
+        // Wait for Hello World text
+        WebElement helloText = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.id("finish"))
         );
 
-        Assert.assertEquals(text.getText(), "Hello World!");
-
-        TakesScreenshot ts = (TakesScreenshot) driver;
-        File src = ts.getScreenshotAs(OutputType.FILE);
-        Files.copy(src.toPath(), new File("screenshots/hello_world.png").toPath());
+        Assert.assertEquals(helloText.getText(), "Hello World!");
     }
 
     @AfterMethod
     public void tearDown() {
-        driver.quit();
+        if (driver != null) {
+            driver.quit();
+        }
     }
 }
