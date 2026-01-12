@@ -10,11 +10,13 @@ import org.testng.annotations.*;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 
 public class DynamicLoadingTest {
 
     WebDriver driver;
+    WebDriverWait wait;
 
     @BeforeMethod
     public void setup() {
@@ -23,24 +25,36 @@ public class DynamicLoadingTest {
 
         WebDriverManager.chromedriver().setup();
         driver = new ChromeDriver(options);
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
         driver.get("https://the-internet.herokuapp.com/dynamic_loading/1");
     }
 
     @Test
-    public void verifyHelloWorldText() throws Exception {
+    public void verifyHelloWorldIsDisplayed() throws Exception {
 
         driver.findElement(By.xpath("//button[text()='Start']")).click();
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        WebElement text = wait.until(
+        WebElement resultText = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.id("finish"))
         );
 
-        Assert.assertEquals(text.getText(), "Hello World!");
+        Assert.assertEquals(resultText.getText(), "Hello World!",
+                "Expected text did not match");
 
-        TakesScreenshot ts = (TakesScreenshot) driver;
-        File src = ts.getScreenshotAs(OutputType.FILE);
-        Files.copy(src.toPath(), new File("screenshots/hello_world.png").toPath());
+        takeScreenshot("hello_world.png");
+    }
+
+    private void takeScreenshot(String fileName) throws Exception {
+        File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+
+        File folder = new File("screenshots");
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
+        File dest = new File(folder, fileName);
+        Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
     @AfterMethod
