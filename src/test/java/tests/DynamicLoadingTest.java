@@ -28,15 +28,15 @@ public class DynamicLoadingTest {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         JavascriptExecutor js = (JavascriptExecutor) driver;
 
-        // ✅ Wait ONLY for presence (not clickable)
+        
         WebElement startButton = wait.until(
                 ExpectedConditions.presenceOfElementLocated(By.cssSelector("#start button"))
         );
 
-        // ✅ Click using JavaScript (most reliable)
+        
         js.executeScript("arguments[0].click();", startButton);
 
-        // ✅ Wait for Hello World text
+        
         WebElement helloText = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.id("finish"))
         );
