@@ -23,7 +23,7 @@ public class WebTablesTest {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         JavascriptExecutor js = (JavascriptExecutor) driver;
 
-        // Click Add button
+        
         WebElement addBtn = wait.until(
                 ExpectedConditions.elementToBeClickable(By.id("addNewRecordButton"))
         );
