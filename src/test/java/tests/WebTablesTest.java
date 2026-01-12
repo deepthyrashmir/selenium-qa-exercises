@@ -19,35 +19,59 @@ public class WebTablesTest {
         driver = new ChromeDriver();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.manage().window().maximize();
+
         driver.get("https://demoqa.com/webtables");
     }
 
     @Test
-    public void addAndEditUser() {
+    public void addAndEditUserInWebTable() {
 
-        List<WebElement> rowsBefore = driver.findElements(By.cssSelector(".rt-tr-group"));
-        int initialCount = rowsBefore.size();
+        int rowsBefore = getTableRowCount();
 
-        driver.findElement(By.id("addNewRecordButton")).click();
-        driver.findElement(By.id("firstName")).sendKeys("Deepthy");
-        driver.findElement(By.id("lastName")).sendKeys("Rashmi");
-        driver.findElement(By.id("userEmail")).sendKeys("deepthy@test.com");
-        driver.findElement(By.id("age")).sendKeys("25");
-        driver.findElement(By.id("salary")).sendKeys("30000");
-        driver.findElement(By.id("department")).sendKeys("QA");
-        driver.findElement(By.id("submit")).click();
+        clickUsingJavaScript(By.id("addNewRecordButton"));
 
-        List<WebElement> rowsAfter = driver.findElements(By.cssSelector(".rt-tr-group"));
-        Assert.assertEquals(rowsAfter.size(), initialCount + 1);
+        fillUserForm("Deepthy", "Rashmi",
+                "deepthy@test.com", "25", "30000", "QA");
 
-        driver.findElement(By.id("edit-record-4")).click();
+        int rowsAfter = getTableRowCount();
+        Assert.assertEquals(rowsAfter, rowsBefore + 1,
+                "Row count did not increase after adding user");
+
+        clickUsingJavaScript(By.id("edit-record-4"));
+
         WebElement ageField = driver.findElement(By.id("age"));
         ageField.clear();
         ageField.sendKeys("30");
+
         driver.findElement(By.id("submit")).click();
 
         WebElement updatedAge = driver.findElement(By.xpath("//div[text()='30']"));
-        Assert.assertTrue(updatedAge.isDisplayed());
+        Assert.assertTrue(updatedAge.isDisplayed(),
+                "Updated age is not displayed in table");
+    }
+
+    private int getTableRowCount() {
+        List<WebElement> rows = driver.findElements(By.cssSelector(".rt-tr-group"));
+        return rows.size();
+    }
+
+    private void fillUserForm(String firstName, String lastName,
+                              String email, String age,
+                              String salary, String department) {
+
+        driver.findElement(By.id("firstName")).sendKeys(firstName);
+        driver.findElement(By.id("lastName")).sendKeys(lastName);
+        driver.findElement(By.id("userEmail")).sendKeys(email);
+        driver.findElement(By.id("age")).sendKeys(age);
+        driver.findElement(By.id("salary")).sendKeys(salary);
+        driver.findElement(By.id("department")).sendKeys(department);
+        driver.findElement(By.id("submit")).click();
+    }
+
+    private void clickUsingJavaScript(By locator) {
+        WebElement element = driver.findElement(locator);
+        ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].click();", element);
     }
 
     @AfterMethod
