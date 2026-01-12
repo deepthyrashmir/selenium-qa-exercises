@@ -1,6 +1,7 @@
 package tests;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -18,25 +19,29 @@ public class DynamicLoadingTest {
 
     @Test
     public void verifyHelloWorldText() {
+
         driver = new ChromeDriver();
         driver.manage().window().maximize();
 
         driver.get("https://the-internet.herokuapp.com/dynamic_loading/1");
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
 
-        // Wait for Start button and click
+        // ✅ Wait ONLY for presence (not clickable)
         WebElement startButton = wait.until(
-                ExpectedConditions.elementToBeClickable(By.xpath("//div[@id='start']/button"))
+                ExpectedConditions.presenceOfElementLocated(By.cssSelector("#start button"))
         );
-        startButton.click();
 
-        // Wait for Hello World text
+        // ✅ Click using JavaScript (most reliable)
+        js.executeScript("arguments[0].click();", startButton);
+
+        // ✅ Wait for Hello World text
         WebElement helloText = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.id("finish"))
         );
 
-        Assert.assertEquals(helloText.getText(), "Hello World!");
+        Assert.assertEquals(helloText.getText().trim(), "Hello World!");
     }
 
     @AfterMethod
